@@ -1,19 +1,21 @@
 {
-  "name": "youtube App",
-  "short_name": "youtube App",
-  "start_url": "./index.html",
+  "name": "YOUTUBE CLEAN",
+  "short_name": "YOUTUBE CLEAN",
+  "description": "YOUTUBE CLEAN",
+  "start_url": "./index.html?v=v1792472790628",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#78baab",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "./icon-192.png?v=v1792472790628",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon-512.png",
+      "src": "./icon-512.png?v=v1792472790628",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

@@ -1,89 +1,883 @@
+<!DOCTYPE html>
 <html lang="ar" dir="rtl"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المشغل الاحترافي - بدون إعلانات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.6">
+    <title>SnapTube Web - الشامل والمحدث</title>
     <style>
         :root {
-            --primary: #ff0055;
-            --bg-color: #0f0f13;
-            --glass-bg: rgba(25, 25, 30, 0.7);
-            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #ff3b30;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --secondary: #3b82f6;
+            --platform-color: #8b5cf6;
+            --playlist-color: #ec4899;
+            --history-color: #f59e0b;
+            --raw-video-color: #06b6d4;
+            --clean-primary: #ff0055;
+            --clean-glass-bg: rgba(25, 25, 30, 0.7);
+            --clean-border-color: rgba(255, 255, 255, 0.1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at top right, #2a0815, #0f0f13 40%);
-            color: #fff;
+            background-color: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
+            padding: 16px;
+        }
+
+        header {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* ==========================================
+           صندوق الهستوري السحابي (Cloud History) بالأعلى
+           ========================================== */
+        .history-header-box {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border: 1px solid var(--history-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .history-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .history-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #fbbf24;
+        }
+
+        .history-count-badge {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--history-color);
+            color: #fde68a;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .cloud-status {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .cloud-status.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-hist-ctrl {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-hist-ctrl:hover {
+            border-color: var(--history-color);
+        }
+
+        .btn-hist-ctrl.danger {
+            color: #ff8a80;
+            border-color: rgba(255, 59, 48, 0.4);
+        }
+
+        /* خانة إضافة رابط مباشر للهستوري */
+        .history-add-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .history-input-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        #historyUrlInput {
+            width: 100%;
+            padding: 11px 12px 11px 70px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.88rem;
+            outline: none;
+            text-align: left;
+            direction: ltr;
+        }
+
+        #historyUrlInput::placeholder {
+            text-align: right;
+            direction: rtl;
+            color: var(--text-muted);
+        }
+
+        #historyUrlInput:focus {
+            border-color: var(--history-color);
+        }
+
+        .btn-hist-paste {
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--card-bg);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-hist-save {
+            background: var(--history-color);
+            color: #0f172a;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .btn-hist-save:hover {
+            opacity: 0.92;
+        }
+
+        .btn-hist-save:active {
+            transform: scale(0.97);
+        }
+
+        /* إخفاء قائمة إعداد السيرفر السحابي نهائياً كما طلبت */
+        .sql-setup-alert {
+            display: none !important;
+        }
+
+        /* قائمة عناصر الهستوري */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding-left: 4px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 6px;
+        }
+
+        .history-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            border: 1px dashed var(--border);
+        }
+
+        .history-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: 0.2s;
+        }
+
+        .history-item:hover {
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+
+        .history-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-thumb {
+            width: 64px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            background: #1e293b;
+        }
+
+        .history-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-item-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .history-item-url {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: ltr;
+            text-align: right;
+            display: block;
+        }
+
+        .history-item-actions {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-h-item {
+            border: none;
+            padding: 6px 9px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .btn-h-load {
+            background: var(--primary);
+        }
+
+        .btn-h-raw {
+            background: var(--raw-video-color);
+            color: #0f172a;
+        }
+
+        .btn-h-clean {
+            background: var(--clean-primary);
+            color: #fff;
+        }
+
+        .btn-h-copy {
+            background: var(--secondary);
+        }
+
+        .btn-h-open {
+            background: var(--success);
+        }
+
+        .btn-h-del {
+            background: rgba(255, 59, 48, 0.2);
+            color: #ff8a80;
+            border: 1px solid rgba(255, 59, 48, 0.4);
+        }
+
+        /* صندوق أزرار البلاي ليست والتحميل المتقدم في البداية */
+        .playlist-header-box {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(236, 72, 153, 0.12);
+            border: 1px solid var(--playlist-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            text-align: center;
+        }
+
+        .playlist-header-title {
+            font-size: 0.95rem;
+            color: #f472b6;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .playlist-buttons-grid {
+            display: flex;
+            gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .playlist-btn {
+            background: var(--playlist-color);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex: 1;
+            min-width: 190px;
+            text-align: center;
+            transition: 0.2s;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+
+        .playlist-btn.raw-stream-btn {
+            background: var(--raw-video-color);
+            color: #0f172a;
+        }
+
+        .playlist-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            margin-bottom: 20px;
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        input[type="text"]#ytUrl {
+            width: 100%;
+            padding: 14px 14px 14px 125px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            text-align: left;
+            direction: ltr;
+        }
+
+        input[type="text"]#ytUrl::placeholder {
+            text-align: right;
+            direction: rtl;
+            color: var(--text-muted);
+        }
+
+        input[type="text"]#ytUrl:focus {
+            border-color: var(--primary);
+        }
+
+        .input-actions {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-action:active {
+            transform: scale(0.95);
+        }
+
+        .btn-clear {
+            color: #ff8a80;
+            border-color: rgba(255, 59, 48, 0.4);
+        }
+
+        .main-buttons-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-fetch {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1.02rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex: 1;
+            min-width: 180px;
+            display: block;
+        }
+
+        .btn-fetch:active {
+            transform: scale(0.98);
+        }
+
+        .btn-raw-main {
+            background: var(--raw-video-color);
+            color: #0f172a;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 0.98rem;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .btn-raw-main:hover {
+            opacity: 0.92;
+        }
+
+        .btn-raw-main:active {
+            transform: scale(0.98);
+        }
+
+        .error-msg {
+            display: none;
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid var(--primary);
+            color: #ff8a80;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 14px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .video-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .video-info img {
+            width: 100%;
+            max-width: 240px;
+            height: 135px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .video-details h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .video-details p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .servers-box {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid var(--secondary);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .servers-box p {
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            color: #93c5fd;
+            font-weight: 600;
+        }
+
+        .server-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .server-btn {
+            background: var(--secondary);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            transition: 0.2s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .server-btn.raw-server-btn {
+            background: var(--raw-video-color);
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .server-btn:hover {
+            opacity: 0.9;
+        }
+
+        .extractor-tool-box {
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid var(--platform-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .extractor-tool-box p {
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            color: #c4b5fd;
+            font-weight: 600;
+        }
+
+        .extractor-buttons-wrap {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-extractor {
+            background: var(--platform-color);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-extractor.raw-player-btn {
+            background: var(--raw-video-color);
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 11px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .quality-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .quality-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .q-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .q-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .q-format {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .btn-dl {
+            background: var(--success);
+            color: #fff;
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-dl-raw {
+            background: var(--raw-video-color);
+            color: #0f172a;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ==========================================
+           قسم: فتح مباشر نضيف (المشغل الاحترافي - بدون إعلانات)
+           ========================================== */
+        .clean-direct-section {
+            width: 100%;
+            max-width: 650px;
+            margin-bottom: 20px;
+        }
+
+        .clean-section-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: rgba(255, 0, 85, 0.12);
+            border: 1px solid rgba(255, 0, 85, 0.45);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .clean-section-badge-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ff80ab;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clean-section-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-clean-quick {
+            background: rgba(15, 15, 19, 0.85);
+            color: #fff;
+            border: 1px solid rgba(255, 0, 85, 0.5);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-clean-quick:hover {
+            background: var(--clean-primary);
+            border-color: var(--clean-primary);
         }
 
         .app-container {
             width: 100%;
             max-width: 900px;
-            background: var(--glass-bg);
+            background: var(--clean-glass-bg);
+            background-image: radial-gradient(circle at top right, #2a0815, #0f0f13 60%);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--clean-border-color);
             border-radius: 20px;
-            padding: 40px;
+            padding: 32px 24px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .header {
+        .app-container .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
-        .header h1 {
-            font-size: 28px;
+        .app-container .header h1 {
+            font-size: 26px;
             background: linear-gradient(to right, #fff, #ffb3c6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
 
-        .header p {
+        .app-container .header p {
             color: #a0a0b0;
             font-size: 15px;
         }
 
-        .input-wrapper {
+        .app-container .input-wrapper {
             position: relative;
             display: flex;
             gap: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
-        input {
+        .app-container input#ytInput {
             flex: 1;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--clean-border-color);
             padding: 16px 20px;
             border-radius: 12px;
             color: #fff;
             font-size: 16px;
             transition: all 0.3s ease;
             outline: none;
+            direction: ltr;
+            text-align: left;
         }
 
-        input:focus {
-            border-color: var(--primary);
+        .app-container input#ytInput::placeholder {
+            direction: rtl;
+            text-align: right;
+            color: #a0a0b0;
+        }
+
+        .app-container input#ytInput:focus {
+            border-color: var(--clean-primary);
             box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
         }
 
-        button {
-            background: var(--primary);
+        .app-container button#playBtn {
+            background: var(--clean-primary);
             color: #fff;
             border: none;
             padding: 0 30px;
@@ -93,9 +887,10 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
+            white-space: nowrap;
         }
 
-        button:hover {
+        .app-container button#playBtn:hover {
             background: #e6004c;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 0, 85, 0.4);
@@ -109,7 +904,7 @@
             border-radius: 16px;
             overflow: hidden;
             display: none;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--clean-border-color);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
@@ -132,7 +927,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid rgba(255,255,255,0.1);
-            border-left-color: var(--primary);
+            border-left-color: var(--clean-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             z-index: 1;
@@ -148,12 +943,13 @@
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
+            margin-bottom: 15px;
             font-weight: 600;
             display: none;
             animation: fadeIn 0.3s ease;
         }
 
-        .error {
+        .message.error {
             background: rgba(255, 0, 0, 0.1);
             color: #ff4c4c;
             border: 1px solid rgba(255, 0, 0, 0.2);
@@ -164,28 +960,103 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* للموبايل */
+        /* قسم الـ 20 موقع تحميل إضافي */
+        .platforms-section {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            margin-bottom: 20px;
+        }
+
+        .platforms-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+        }
+
+        .platform-link {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .platform-link:hover {
+            border-color: var(--secondary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
         @media (max-width: 600px) {
-            .input-wrapper {
+            .app-container .input-wrapper {
                 flex-direction: column;
             }
-            button {
+            .app-container button#playBtn {
                 padding: 16px;
             }
             .app-container {
                 padding: 20px;
             }
         }
+
+        @media (max-width: 520px) {
+            .history-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .history-item-actions {
+                justify-content: flex-end;
+            }
+        }
     </style>
-<style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style>
-    
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#3b82f6">
-    <link rel="apple-touch-icon" href="./icon-192.png">
+    <style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,#onetap_google_intermediate_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,.adthrive-auto-injected-player-container,.adthrive[id^="cls-video-container"]:has(.adthrive-auto-injected-player-container),#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style>
+    <!-- مكتبات Firebase الرسمية للمزامنة السحابية الفورية بين الأجهزة -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="./manifest.json?v=v1792263995960">
+    <meta name="theme-color" content="#00ffff">
+    <link rel="apple-touch-icon" href="./icon-192.png?v=v1792263995960">
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
+          navigator.serviceWorker.register('./sw.js?v=v1792263995960')
+            .then(reg => console.log('SW Registered'))
+            .catch(err => console.log('SW Failed', err));
+        });
+      }
+    </script>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="manifest" href="./manifest.json?v=v1792472790628">
+    <meta name="theme-color" content="#78baab">
+    <link rel="apple-touch-icon" href="./icon-192.png?v=v1792472790628">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js?v=v1792472790628')
             .then(reg => console.log('SW Registered'))
             .catch(err => console.log('SW Failed', err));
         });
@@ -194,26 +1065,1072 @@
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="header">
-            <h1>مشغل يوتيوب الاحترافي</h1>
-            <p>تجربة مشاهدة سينمائية، بدون إعلانات أو تتبع</p>
+    <header>
+        <div class="logo">⚡ SnapTube Web الشامل</div>
+        <p class="subtitle">تحميل الفيديوهات والصوتيات مع 10 سيرفرات تحميل مباشرة وقوائم التشغيل</p>
+    </header>
+
+    <!-- =====================================================
+         قائمة الهستوري السحابية (Firebase + LocalStorage) في الأعلى
+         ===================================================== -->
+    <div class="history-header-box">
+        <div class="history-top-bar">
+            <div class="history-title-wrap">
+                <span class="history-title">🕒 سجل الروابط المحفوظة (History)</span>
+                <span class="history-count-badge" id="historyCount">0</span>
+                <span class="cloud-status" id="cloudStatusBadge">🟢 محفوظ محلياً</span>
+            </div>
+            <div class="history-controls">
+                <button type="button" class="btn-hist-ctrl" onclick="syncFromSupabase(true)" title="جلب أحدث الروابط من الأجهزة الأخرى">🔄 تحديث السحابة</button>
+                <button type="button" class="btn-hist-ctrl" onclick="toggleHistoryList()" id="btnToggleHist">🔼 طي القائمة</button>
+                <button type="button" class="btn-hist-ctrl danger" onclick="clearAllHistory()">🗑️ مسح السجل</button>
+            </div>
         </div>
-        
-        <div class="input-wrapper">
-            <input type="text" id="ytInput" placeholder="الصق رابط الفيديو أو الـ Shorts هنا..." autocomplete="off" data-ddg-inputtype="unknown">
-            <button onclick="processLink()" id="playBtn">تشغيل الآن</button>
+
+        <!-- مخفي تماماً حسب الطلب -->
+        <div class="sql-setup-alert" id="sqlSetupBox"></div>
+
+        <!-- خانة إضافة رابط مباشر في الهستوري بالأعلى -->
+        <div class="history-add-row">
+            <div class="history-input-wrapper">
+                <input type="text" id="historyUrlInput" placeholder="ضع أي رابط هنا لحفظه في الهستوري ومزامنته على كل أجهزتك..." onkeydown="if(event.key === 'Enter') addManualHistoryLink()">
+                <button type="button" class="btn-hist-paste" onclick="pasteAndSaveHistory()">لصق وحفظ</button>
+            </div>
+            <button type="button" class="btn-hist-save" onclick="addManualHistoryLink()">➕ حفظ بالهستوري</button>
+            <button type="button" class="btn-hist-save" style="background: var(--raw-video-color);" onclick="openOriginalRawVideo(document.getElementById('historyUrlInput').value)">🎬 الفيديو الأصلي</button>
         </div>
-        
-        <div id="statusMsg" class="message error"></div>
-        
-        <div class="player-wrapper" id="playerContainer">
-            <div class="loader" id="loader"></div>
-            <iframe id="videoIframe" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen=""></iframe>
+
+        <!-- قائمة الروابط المحفوظة -->
+        <div class="history-list" id="historyListContainer"><div class="history-empty">لا توجد روابط محفوظة في الهستوري حتى الآن... أضف أي رابط بالأعلى أو حلل أي فيديو بالأسفل ليُحفظ تلقائياً!</div></div>
+    </div>
+
+    <!-- أزرار البلاي ليست المربوطة بنسخ الرابط تلقائياً + زر فتح الفيديو الأصلي المباشر -->
+    <div class="playlist-header-box">
+        <div class="playlist-header-title">🎵 خيارات قوائم التشغيل والتحميل المتقدم والفيديو الأصلي (Playlist &amp; Raw):</div>
+        <div class="playlist-buttons-grid">
+            <button type="button" class="playlist-btn" onclick="openAndCopyPlaylist(1)">📂 GenYouTube Playlist (سيرفر 1)</button>
+            <button type="button" class="playlist-btn" onclick="openAndCopyPlaylist(2)">📥 YouTube Multi Downloader (سيرفر 2)</button>
+            <button type="button" class="playlist-btn raw-stream-btn" onclick="openOriginalRawVideo()">🎬 فتح الفيديو الأصلي (GoogleVideo)</button>
         </div>
     </div>
 
+    <div class="container">
+        <div class="input-box">
+            <input type="text" id="ytUrl" placeholder="ضع رابط فيديو يوتيوب هنا..." onkeydown="if(event.key === 'Enter') analyzeVideo()">
+            <div class="input-actions">
+                <button type="button" class="btn-action" onclick="pasteLink()">لصق</button>
+                <button type="button" class="btn-action btn-clear" onclick="clearLink()">مسح</button>
+            </div>
+        </div>
+
+        <div class="main-buttons-row">
+            <button type="button" class="btn-fetch" onclick="analyzeVideo()">تحليل الرابط</button>
+            <button type="button" class="btn-raw-main" onclick="openOriginalRawVideo()">🎬 فتح الفيديو الأصلي (GoogleVideo)</button>
+        </div>
+
+        <div class="error-msg" id="errorMsg">يرجى إدخال رابط يوتيوب صحيح!</div>
+
+        <div class="result-section" id="resultSection">
+            <div class="video-info">
+                <img id="videoThumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="صورة الفيديو">
+                <div class="video-details">
+                    <h3 id="videoTitle">جاري جلب اسم الفيديو...</h3>
+                    <p id="videoAuthor">يوتيوب</p>
+                </div>
+            </div>
+
+            <!-- أداة استخراج الفيديو المباشر + زر فتح الفيديو الأصلي -->
+            <div class="extractor-tool-box">
+                <p>🎬 أداة استخراج ورصد وفتح الفيديو الأصلي المباشر (GoogleVideo):</p>
+                <div class="extractor-buttons-wrap">
+                    <button type="button" class="btn-extractor" onclick="runExtractorTool()">تشغيل أداة استخراج ورصد الفيديو ⚡</button>
+                    <button type="button" class="btn-extractor raw-player-btn" onclick="openOriginalRawVideo()">🎬 فتح الفيديو الأصلي المباشر ▶</button>
+                </div>
+            </div>
+
+            <div class="servers-box">
+                <p>اضغط على أي سيرفر بالأسفل للتحميل الفوري (10 سيرفرات مختلفة + المشغل الأصلي):</p>
+                <div class="server-links" id="directServers"></div>
+            </div>
+
+            <div class="tabs">
+                <button type="button" class="tab-btn active" id="tabVideo" onclick="switchTab('video')">🎬 فيديو (MP4)</button>
+                <button type="button" class="tab-btn" id="tabAudio" onclick="switchTab('audio')">🎵 صوت (MP3)</button>
+            </div>
+
+            <div id="videoQualities" class="quality-grid"></div>
+            <div id="audioQualities" class="quality-grid" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         قسم: فتح مباشر نضيف (المشغل الاحترافي - بدون إعلانات)
+         ===================================================== -->
+    <section class="clean-direct-section" id="cleanDirectSection">
+        <div class="clean-section-badge">
+            <div class="clean-section-badge-title">✨ قسم: فتح مباشر نضيف</div>
+            <div class="clean-section-actions">
+                <button type="button" class="btn-clean-quick" onclick="pasteToCleanPlayer()">📋 لصق وتشغيل</button>
+                <button type="button" class="btn-clean-quick" onclick="copyFromTopToCleanPlayer()">⬆️ جلب الرابط من الأعلى وتشغيله</button>
+                <button type="button" class="btn-clean-quick" onclick="clearCleanPlayer()">🗑️ مسح</button>
+            </div>
+        </div>
+
+        <div class="app-container">
+            <div class="header">
+                <h1>مشغل يوتيوب الاحترافي</h1>
+                <p>تجربة مشاهدة سينمائية، بدون إعلانات أو تتبع</p>
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="text" id="ytInput" placeholder="الصق رابط الفيديو أو الـ Shorts هنا..." autocomplete="off" data-ddg-inputtype="unknown">
+                <button type="button" onclick="processLink()" id="playBtn">تشغيل الآن</button>
+            </div>
+            
+            <div id="statusMsg" class="message error"></div>
+            
+            <div class="player-wrapper" id="playerContainer">
+                <div class="loader" id="loader"></div>
+                <iframe id="videoIframe" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen=""></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الـ 20 موقع تحميل إضافي -->
+    <div class="platforms-section">
+        <div class="platforms-title">🌐 20 موقع وسيرفر تحميل إضافي موثوق</div>
+        <div class="platforms-grid">
+            <a href="https://en.loader.to/" target="_blank" rel="noopener noreferrer" class="platform-link">Loader.to</a>
+            <a href="https://y2mate.is/" target="_blank" rel="noopener noreferrer" class="platform-link">Y2Mate.is</a>
+            <a href="https://savefrom.net" target="_blank" rel="noopener noreferrer" class="platform-link">SaveFrom.net</a>
+            <a href="https://ssyoutube.com" target="_blank" rel="noopener noreferrer" class="platform-link">SSYoutube</a>
+            <a href="https://y2meta.app" target="_blank" rel="noopener noreferrer" class="platform-link">Y2Meta.app</a>
+            <a href="https://x2download.com" target="_blank" rel="noopener noreferrer" class="platform-link">X2Download</a>
+            <a href="https://keepv.id" target="_blank" rel="noopener noreferrer" class="platform-link">KeepVid</a>
+            <a href="https://9convert.com" target="_blank" rel="noopener noreferrer" class="platform-link">9Convert</a>
+            <a href="https://no1s.biz" target="_blank" rel="noopener noreferrer" class="platform-link">No1S Downloader</a>
+            <a href="https://yt1s.com" target="_blank" rel="noopener noreferrer" class="platform-link">YT1s.com</a>
+            <a href="https://en.savefrom.net" target="_blank" rel="noopener noreferrer" class="platform-link">SaveFrom Alt</a>
+            <a href="https://catchvideo.net" target="_blank" rel="noopener noreferrer" class="platform-link">CatchVideo</a>
+            <a href="https://deturl.com" target="_blank" rel="noopener noreferrer" class="platform-link">DetURL</a>
+            <a href="https://tuberipper.com" target="_blank" rel="noopener noreferrer" class="platform-link">TubeRipper</a>
+            <a href="https://save.tube" target="_blank" rel="noopener noreferrer" class="platform-link">Save.Tube</a>
+            <a href="https://qdownloader.cc" target="_blank" rel="noopener noreferrer" class="platform-link">QDownloader</a>
+            <a href="https://videoder.com" target="_blank" rel="noopener noreferrer" class="platform-link">Videoder Web</a>
+            <a href="https://converto.io" target="_blank" rel="noopener noreferrer" class="platform-link">Converto.io</a>
+            <a href="https://flvto.biz" target="_blank" rel="noopener noreferrer" class="platform-link">FLVto</a>
+            <a href="https://MP3FY.com" target="_blank" rel="noopener noreferrer" class="platform-link">MP3FY</a>
+        </div>
+    </div>
+
+    <footer style="width: 100%; max-width: 650px; border-radius: 16px; background: rgba(13, 17, 30, 0.45); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.15); padding: 30px 20px; text-align: center; color: #fff; margin-top: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);">
+        <p style="font-size: 22px; font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.4); margin-bottom: 10px; letter-spacing: 1px;">© 2027 _ 2026 ENG OMAR TV. All Rights Reserved.</p>
+        <p style="color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.6); font-size: 18px; font-weight: bold; margin-bottom: 25px;">اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى سَيِّدِنَا مُحَمَّدٍ ﷺ</p>
+        
+        <div style="margin-top: 20px;">
+            <a href="https://t.me/livein2027" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: rgba(10, 15, 25, 0.6); color: #3498db; padding: 12px 30px; text-decoration: none; border-radius: 30px; font-size: 18px; font-weight: bold; border: 1.5px solid #3498db; box-shadow: 0 0 15px rgba(52, 152, 219, 0.4), inset 0 0 10px rgba(52, 152, 219, 0.2); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);" onmouseover="this.style.background='rgba(52, 152, 219, 0.2)'; this.style.color='#fff'; this.style.boxShadow='0 0 25px #3498db, inset 0 0 15px #3498db'; this.style.transform='translateY(-3px) scale(1.05)';" onmouseout="this.style.background='rgba(10, 15, 25, 0.6)'; this.style.color='#3498db'; this.style.boxShadow='0 0 15px rgba(52, 152, 219, 0.4), inset 0 0 10px rgba(52, 152, 219, 0.2)'; this.style.transform='translateY(0) scale(1)';">
+                💬 تواصل مع المبرمج
+            </a>
+        </div>
+    </footer>
+
     <script>
+        /* =========================================================
+           1. تنظيف وإلغاء أي ServiceWorker (sw.js) متعطل يسبب أخطاء FetchEvent في الـ Console
+           ========================================================= */
+        (function cleanBrokenServiceWorkers() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (var i = 0; i < registrations.length; i++) {
+                        registrations[i].unregister();
+                    }
+                }).catch(function() {});
+            }
+        })();
+
+        /* =========================================================
+           إعدادات سيرفر الحفظ السحابي الجديد (Firebase Realtime Database)
+           لضمان عمل الهستوري السحابي والريفريش القوي والمزامنة اللحظية على كل الأجهزة بنسبة 100%
+           ========================================================= */
+        const firebaseConfig = {
+          apiKey: "AIzaSyB3o3PJ_l6-lBYReKId2FRxmINjjsV3w1M",
+          authDomain: "backkeenddd.firebaseapp.com",
+          databaseURL: "https://backkeenddd-default-rtdb.firebaseio.com",
+          projectId: "backkeenddd",
+          storageBucket: "backkeenddd.firebasestorage.app",
+          messagingSenderId: "909565299323",
+          appId: "1:909565299323:web:a9ede76e82b00a2039b0de",
+          measurementId: "G-QSXVNCH52R"
+        };
+
+        var FIREBASE_DB_URL   = firebaseConfig.databaseURL.replace(/\/+$/, '');
+        var LOCAL_STORAGE_KEY = 'snaptube_web_persistent_history_v1';
+        var ACTIVE_TABLE      = 'snaptube_history';
+
+        // صورة مصغرة مدمجة (Data SVG) لا تحتاج لإنترنت ولا تسبب أي أخطاء تحميل في الـ Console
+        var FALLBACK_THUMB_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='80' viewBox='0 0 120 80'><rect width='120' height='80' fill='%231e293b'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23fbbf24' font-family='sans-serif' font-size='14' font-weight='bold'>VIDEO</text></svg>";
+
+        var firebaseApp = null;
+        var firebaseDb  = null;
+        var firebaseHistoryRef = null;
+        var historyListCollapsed = false;
+
+        // تهيئة Firebase Realtime Database وتفعيل الاستماع اللحظي (Realtime Listener)
+        function initFirebaseCloud() {
+            try {
+                if (typeof firebase !== 'undefined') {
+                    if (!firebase.apps || firebase.apps.length === 0) {
+                        firebaseApp = firebase.initializeApp(firebaseConfig);
+                    } else {
+                        firebaseApp = firebase.app();
+                    }
+                    if (firebase.database) {
+                        firebaseDb = firebase.database();
+                        firebaseHistoryRef = firebaseDb.ref(ACTIVE_TABLE);
+
+                        // استماع فوري لأي تعديل يتم من أي جهاز آخر
+                        firebaseHistoryRef.on('value', function(snapshot) {
+                            var val = snapshot.val();
+                            applyCloudSnapshotToLocal(val);
+                            updateCloudStatus('🟢 متصل بالسحابة (Firebase Realtime)', false);
+                        }, function() {
+                            // في حال تعذر WebSocket نعتمد على REST API تلقائياً
+                        });
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // تحويل أي رابط إلى مفتاح آمن وثابت في Firebase لمنع التكرار وتسهيل الحذف والتحديث
+        function urlToFirebaseKey(url) {
+            var str = String(url || '').trim();
+            var h1 = 5381, h2 = 52711;
+            for (var i = 0; i < str.length; i++) {
+                var c = str.charCodeAt(i);
+                h1 = ((h1 << 5) + h1) ^ c;
+                h2 = ((h2 << 5) + h2) ^ c;
+            }
+            var vid = extractVideoID(str);
+            var prefix = vid ? ('yt_' + vid + '_') : 'item_';
+            return prefix + (h1 >>> 0).toString(16) + '_' + (h2 >>> 0).toString(16);
+        }
+
+        // تحويل بيانات Firebase (سواء كائن أو مصفوفة) إلى قائمة مرتبة بالأحدث
+        function parseFirebaseDataToList(rawObj) {
+            if (!rawObj || typeof rawObj !== 'object') return [];
+            var keys = Object.keys(rawObj);
+            var list = [];
+            for (var i = 0; i < keys.length; i++) {
+                var k = keys[i];
+                var row = rawObj[k];
+                if (row && typeof row === 'object' && row.url) {
+                    list.push({
+                        id: k,
+                        url: String(row.url).trim(),
+                        title: row.title || row.url,
+                        video_id: row.video_id || extractVideoID(row.url) || '',
+                        thumb: row.thumb || '',
+                        created_at: row.created_at || new Date(0).toISOString()
+                    });
+                }
+            }
+            list.sort(function(a, b) {
+                var tA = Date.parse(a.created_at || '') || 0;
+                var tB = Date.parse(b.created_at || '') || 0;
+                return tB - tA;
+            });
+
+            var seen = new Set();
+            var unique = [];
+            for (var j = 0; j < list.length; j++) {
+                if (!seen.has(list[j].url)) {
+                    seen.add(list[j].url);
+                    unique.push(list[j]);
+                }
+            }
+            return unique;
+        }
+
+        // تطبيق البيانات القادمة من السحابة وتحديث الواجهة
+        function applyCloudSnapshotToLocal(rawCloudObj) {
+            var cloudItems = parseFirebaseDataToList(rawCloudObj);
+            setLocalHistory(cloudItems);
+            renderHistory();
+        }
+
+        // قراءة الهستوري المحلي فوراً (ضمان عدم ضياع أي رابط مع الريفريش القوي)
+        function getLocalHistory() {
+            try {
+                var raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // حفظ الهستوري محلياً
+        function setLocalHistory(items) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+            } catch (e) {}
+        }
+
+        // تحديث حالة الاتصال بالسحابة في الواجهة
+        function updateCloudStatus(text, isWarning) {
+            var badge = document.getElementById('cloudStatusBadge');
+            if (!badge) return;
+            badge.textContent = text;
+            badge.className = isWarning ? 'cloud-status warning' : 'cloud-status';
+        }
+
+        // فحص ما إذا كان الرابط آمناً للوضع في href مباشرة (لمنع خطأ Security Error: file:/// في فايرفوكس)
+        function isSafeHttpUrl(urlStr) {
+            if (!urlStr || typeof urlStr !== 'string') return false;
+            return /^https?:\/\//i.test(urlStr.trim());
+        }
+
+        // عرض عناصر الهستوري في القائمة العلوية (مع منع أخطاء file:/// تماماً)
+        function renderHistory() {
+            var listEl = document.getElementById('historyListContainer');
+            var countEl = document.getElementById('historyCount');
+            var items = getLocalHistory();
+
+            countEl.textContent = items.length;
+
+            if (items.length === 0) {
+                listEl.innerHTML = '<div class="history-empty">لا توجد روابط محفوظة في الهستوري حتى الآن... أضف أي رابط بالأعلى أو حلل أي فيديو بالأسفل ليُحفظ تلقائياً!</div>';
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var rawUrl = String(item.url || '').trim();
+                var safeUrl = escapeHtml(rawUrl);
+                var safeTitle = escapeHtml(item.title || rawUrl || 'رابط محفوظ');
+                var rawThumb = item.thumb || (item.video_id ? 'https://i.ytimg.com/vi/' + item.video_id + '/hqdefault.jpg' : FALLBACK_THUMB_SVG);
+                if (!isSafeHttpUrl(rawThumb) && rawThumb.indexOf('data:image/') !== 0) {
+                    rawThumb = FALLBACK_THUMB_SVG;
+                }
+
+                // إذا كان الرابط يبدأ بـ http/https نضعه في <a>، وإلا نفتحه بزر آمن لمنع Security Error: file:///
+                var openButtonHtml = isSafeHttpUrl(rawUrl)
+                    ? '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" class="btn-h-item btn-h-open">↗ فتح</a>'
+                    : '<button type="button" class="btn-h-item btn-h-open" onclick="openHistoryItemSafe(' + i + ')">↗ فتح</button>';
+
+                html += '<div class="history-item">' +
+                    '<div class="history-item-info">' +
+                        '<img class="history-thumb" src="' + escapeHtml(rawThumb) + '" alt="thumb" onerror="this.onerror=null;this.src=\'' + FALLBACK_THUMB_SVG + '\'">' +
+                        '<div class="history-text">' +
+                            '<div class="history-item-title" title="' + safeTitle + '">' + safeTitle + '</div>' +
+                            '<span class="history-item-url" title="' + safeUrl + '">' + safeUrl + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="history-item-actions">' +
+                        '<button type="button" class="btn-h-item btn-h-load" onclick="loadFromHistory(' + i + ')">⚡ تحليل وتحميل</button>' +
+                        '<button type="button" class="btn-h-item btn-h-clean" onclick="playHistoryInCleanSection(' + i + ')" title="تشغيل في قسم فتح مباشر نضيف">✨ فتح نضيف</button>' +
+                        '<button type="button" class="btn-h-item btn-h-raw" onclick="openRawVideoFromHistory(' + i + ')" title="فتح الفيديو الأصلي المباشر">🎬 الفيديو الأصلي</button>' +
+                        '<button type="button" class="btn-h-item btn-h-copy" onclick="copyHistoryItem(' + i + ', this)">📋 نسخ</button>' +
+                        openButtonHtml +
+                        '<button type="button" class="btn-h-item btn-h-del" onclick="deleteHistoryItem(' + i + ')" title="حذف">✕</button>' +
+                    '</div>' +
+                '</div>';
+            }
+            listEl.innerHTML = html;
+        }
+
+        function openHistoryItemSafe(index) {
+            var items = getLocalHistory();
+            var item = items[index];
+            if (!item || !item.url) return;
+            var u = item.url.trim();
+            if (isSafeHttpUrl(u)) {
+                window.open(u, '_blank', 'noopener,noreferrer');
+            } else {
+                copyHistoryItem(index, null);
+                alert('📋 هذا الرابط محلي (' + u + ')، تم نسخه إلى الحافظة بنجاح!');
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // جلب ومزامنة البيانات من سحابة Firebase Realtime Database
+        async function syncFromSupabase(showAlertOnManual) {
+            updateCloudStatus('🔄 جاري المزامنة...', false);
+            var rawCloudObj = null;
+            var connected = false;
+
+            try {
+                var res = await fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '.json', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-store'
+                });
+
+                if (res.ok) {
+                    rawCloudObj = await res.json();
+                    connected = true;
+                }
+            } catch (err) {}
+
+            if (!connected && firebaseHistoryRef) {
+                try {
+                    var snap = await firebaseHistoryRef.once('value');
+                    rawCloudObj = snap.val();
+                    connected = true;
+                } catch (e) {}
+            }
+
+            if (!connected) {
+                updateCloudStatus('🟢 محفوظ محلياً', false);
+                return;
+            }
+
+            var cloudData = parseFirebaseDataToList(rawCloudObj);
+
+            // دمج السجل المحلي مع السحابي حتى لا يضيع أي رابط أبداً
+            var localItems = getLocalHistory();
+            var cloudUrls = new Set(cloudData.map(function(c) { return c.url; }));
+
+            // رفع أي روابط كانت محفوظة محلياً ولم تُرفع للسحابة بعد
+            var pushedAny = false;
+            for (var i = localItems.length - 1; i >= 0; i--) {
+                var loc = localItems[i];
+                if (loc && loc.url && !cloudUrls.has(loc.url)) {
+                    await pushItemToCloud(loc);
+                    pushedAny = true;
+                }
+            }
+
+            // إعادة الجلب بعد الدمج إذا تم رفع عناصر جديدة
+            if (pushedAny) {
+                try {
+                    var finalRes = await fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '.json', {
+                        method: 'GET',
+                        cache: 'no-store'
+                    });
+                    if (finalRes.ok) {
+                        rawCloudObj = await finalRes.json();
+                        cloudData = parseFirebaseDataToList(rawCloudObj);
+                    }
+                } catch (e) {}
+            }
+
+            setLocalHistory(cloudData);
+            renderHistory();
+            updateCloudStatus('🟢 متصل بالسحابة (مزامنة بين الأجهزة)', false);
+
+            if (showAlertOnManual) {
+                updateCloudStatus('✅ تم التحديث من السحابة بنجاح!', false);
+            }
+        }
+
+        // إرسال رابط إلى قاعدة بيانات Firebase Realtime Database
+        async function pushItemToCloud(item) {
+            if (!item || !item.url) return;
+            var key = urlToFirebaseKey(item.url);
+            var payload = {
+                id: key,
+                url: item.url,
+                title: item.title || item.url,
+                video_id: item.video_id || extractVideoID(item.url) || '',
+                thumb: item.thumb || '',
+                created_at: item.created_at || new Date().toISOString()
+            };
+
+            try {
+                if (firebaseHistoryRef) {
+                    firebaseHistoryRef.child(key).set(payload);
+                }
+            } catch (e) {}
+
+            try {
+                var res = await fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '/' + encodeURIComponent(key) + '.json', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    updateCloudStatus('🟢 محفوظ في السحابة وعلى جميع الأجهزة', false);
+                }
+            } catch (e) {}
+        }
+
+        // إضافة أو تحديث رابط في الهستوري (محلياً + سحابياً + جلب اسم الفيديو تلقائياً)
+        function saveLinkToHistory(rawUrl, customTitle) {
+            if (!rawUrl) return;
+            var url = rawUrl.trim();
+            if (!url) return;
+
+            var videoId = extractVideoID(url) || '';
+            var thumb = videoId ? ('https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg') : '';
+            var initialTitle = customTitle || (videoId ? 'فيديو يوتيوب (' + videoId + ')' : url);
+
+            var items = getLocalHistory();
+            var existing = items.find(function(x) { return x.url === url; });
+            if (existing && existing.title && !customTitle && existing.title.indexOf('فيديو يوتيوب (') === -1) {
+                initialTitle = existing.title;
+            }
+
+            var filtered = items.filter(function(x) { return x.url !== url; });
+            var newItem = {
+                id: urlToFirebaseKey(url),
+                url: url,
+                title: initialTitle,
+                video_id: videoId,
+                thumb: thumb,
+                created_at: new Date().toISOString()
+            };
+
+            filtered.unshift(newItem);
+            setLocalHistory(filtered);
+            renderHistory();
+
+            // رفعه للسحابة فوراً
+            pushItemToCloud(newItem);
+
+            // جلب اسم الفيديو الحقيقي من يوتيوب وتحديثه في الهستوري والسحابة
+            if (videoId && (!customTitle || customTitle.indexOf('فيديو يوتيوب') !== -1)) {
+                var cleanYtUrl = 'https://www.youtube.com/watch?v=' + videoId;
+                fetch('https://noembed.com/embed?url=' + encodeURIComponent(cleanYtUrl))
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.title) {
+                            updateHistoryTitle(url, data.title);
+                        }
+                    })
+                    .catch(function() {});
+            }
+        }
+
+        // تحديث عنوان الفيديو بعد جلبه من NoEmbed في LocalStorage و Firebase
+        function updateHistoryTitle(url, realTitle) {
+            if (!realTitle) return;
+            var items = getLocalHistory();
+            var updatedItem = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].url === url) {
+                    items[i].title = realTitle;
+                    updatedItem = items[i];
+                    break;
+                }
+            }
+            setLocalHistory(items);
+            renderHistory();
+
+            if (updatedItem) {
+                var key = urlToFirebaseKey(url);
+                try {
+                    if (firebaseHistoryRef) {
+                        firebaseHistoryRef.child(key).update({ title: realTitle });
+                    }
+                } catch (e) {}
+
+                fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '/' + encodeURIComponent(key) + '.json', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: realTitle })
+                }).catch(function() {});
+            }
+        }
+
+        // إضافة رابط يدوياً من الخانة العلوية للهستوري
+        function addManualHistoryLink() {
+            var input = document.getElementById('historyUrlInput');
+            var val = input.value.trim();
+            if (!val) {
+                input.focus();
+                return;
+            }
+            saveLinkToHistory(val);
+            input.value = '';
+
+            // إذا كان رابط يوتيوب، نقوم بتحليله أيضاً
+            if (extractVideoID(val)) {
+                document.getElementById('ytUrl').value = val;
+                analyzeVideo(true);
+            }
+        }
+
+        // زر لصق وحفظ سريع في الهستوري بالأعلى
+        function pasteAndSaveHistory() {
+            var input = document.getElementById('historyUrlInput');
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(function(text) {
+                    if (text && text.trim()) {
+                        input.value = text.trim();
+                        addManualHistoryLink();
+                    } else {
+                        input.focus();
+                    }
+                }).catch(function() {
+                    input.focus();
+                });
+            } else {
+                input.focus();
+            }
+        }
+
+        // تشغيل وتحليل رابط من الهستوري بضغطة زر
+        function loadFromHistory(index) {
+            var items = getLocalHistory();
+            var item = items[index];
+            if (!item) return;
+
+            var ytInput = document.getElementById('ytUrl');
+            ytInput.value = item.url;
+            analyzeVideo();
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // تشغيل رابط من الهستوري مباشرة في قسم "فتح مباشر نضيف"
+        function playHistoryInCleanSection(index) {
+            var items = getLocalHistory();
+            var item = items[index];
+            if (!item) return;
+
+            var cleanInput = document.getElementById('ytInput');
+            cleanInput.value = item.url;
+            processLink();
+            document.getElementById('cleanDirectSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // فتح الفيديو الأصلي المباشر من عنصر في الهستوري
+        function openRawVideoFromHistory(index) {
+            var items = getLocalHistory();
+            var item = items[index];
+            if (!item) return;
+            document.getElementById('ytUrl').value = item.url;
+            openOriginalRawVideo(item.url);
+        }
+
+        // نسخ رابط من الهستوري
+        function copyHistoryItem(index, btnEl) {
+            var items = getLocalHistory();
+            var item = items[index];
+            if (!item) return;
+
+            try {
+                navigator.clipboard.writeText(item.url);
+            } catch (e) {
+                var c = document.createElement('textarea');
+                c.value = item.url;
+                document.body.appendChild(c);
+                c.select();
+                try { document.execCommand('copy'); } catch (err) {}
+                document.body.removeChild(c);
+            }
+
+            if (btnEl) {
+                var oldText = btnEl.textContent;
+                btnEl.textContent = '✓ تم النسخ';
+                setTimeout(function() { btnEl.textContent = oldText; }, 1200);
+            }
+        }
+
+        // حذف عنصر واحد من الهستوري (محلياً + من Firebase)
+        async function deleteHistoryItem(index) {
+            var items = getLocalHistory();
+            var item = items[index];
+            if (!item) return;
+
+            var key = item.id || urlToFirebaseKey(item.url);
+            var deterministicKey = urlToFirebaseKey(item.url);
+
+            items.splice(index, 1);
+            setLocalHistory(items);
+            renderHistory();
+
+            try {
+                if (firebaseHistoryRef) {
+                    firebaseHistoryRef.child(key).remove();
+                    if (deterministicKey !== key) {
+                        firebaseHistoryRef.child(deterministicKey).remove();
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                await fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '/' + encodeURIComponent(key) + '.json', {
+                    method: 'DELETE'
+                });
+                if (deterministicKey !== key) {
+                    await fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '/' + encodeURIComponent(deterministicKey) + '.json', {
+                        method: 'DELETE'
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // مسح السجل بالكامل (محلياً + من Firebase)
+        async function clearAllHistory() {
+            var items = getLocalHistory();
+            if (items.length === 0) return;
+            if (!confirm('هل أنت متأكد من مسح سجل الروابط بالكامل من هذا الجهاز ومن السحابة؟')) return;
+
+            setLocalHistory([]);
+            renderHistory();
+
+            try {
+                if (firebaseHistoryRef) {
+                    firebaseHistoryRef.remove();
+                }
+            } catch (e) {}
+
+            try {
+                await fetch(FIREBASE_DB_URL + '/' + ACTIVE_TABLE + '.json', {
+                    method: 'DELETE'
+                });
+                updateCloudStatus('🟢 تم مسح السجل من السحابة', false);
+            } catch (e) {}
+        }
+
+        // طي أو إظهار قائمة الهستوري
+        function toggleHistoryList() {
+            var listEl = document.getElementById('historyListContainer');
+            var btn = document.getElementById('btnToggleHist');
+            historyListCollapsed = !historyListCollapsed;
+            if (historyListCollapsed) {
+                listEl.style.display = 'none';
+                btn.textContent = '🔽 إظهار القائمة';
+            } else {
+                listEl.style.display = 'flex';
+                btn.textContent = '🔼 طي القائمة';
+            }
+        }
+
+        // تشغيل الهستوري والمزامنة فور فتح الصفحة + تحديث تلقائي عند العودة للتاب
+        window.addEventListener('DOMContentLoaded', function() {
+            renderHistory();
+            initFirebaseCloud();
+            syncFromSupabase(false);
+
+            window.addEventListener('focus', function() {
+                syncFromSupabase(false);
+            });
+        });
+
+        /* =========================================================
+           مشغل الفيديو الأصلي الأسود المباشر (بدون أي أخطاء CORS أو أخطاء Console نهائياً)
+           ========================================================= */
+        function openOriginalRawVideo(customUrl, preferredItag) {
+            var rawUrl = (customUrl && typeof customUrl === 'string' && customUrl.trim())
+                ? customUrl.trim()
+                : (document.getElementById('ytUrl').value.trim() || document.getElementById('historyUrlInput').value.trim() || document.getElementById('ytInput').value.trim());
+
+            if (!rawUrl) {
+                alert('⚠️ يرجى وضع رابط الفيديو في الخانة أولاً لفتح الفيديو الأصلي المباشر!');
+                document.getElementById('ytUrl').focus();
+                return;
+            }
+
+            // حفظ الرابط تلقائياً في الهستوري
+            saveLinkToHistory(rawUrl);
+
+            var isDirectMedia = (rawUrl.indexOf('googlevideo.com') !== -1 || /\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(rawUrl));
+            var videoId = extractVideoID(rawUrl);
+
+            // فتح مشغل الشاشة السوداء الأصلي فوراً بدون أي طلبات CORS خارجية تسبب أخطاء
+            var win = window.open('', '_blank');
+            if (!win || !win.document) {
+                window.open(rawUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+
+            if (isDirectMedia || (!videoId && isSafeHttpUrl(rawUrl))) {
+                win.document.open();
+                win.document.write(
+                    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">' +
+                    '<meta name="referrer" content="no-referrer">' +
+                    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+                    '<title>المشغل الأصلي المباشر</title>' +
+                    '<style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#000;color:#fff;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}' +
+                    'video{width:100%;max-width:100vw;max-height:100vh;outline:none;background:#000;}</style></head><body>' +
+                    '<video controls autoplay playsinline src="' + escapeHtml(rawUrl) + '"></video>' +
+                    '</body></html>'
+                );
+                win.document.close();
+                return;
+            }
+
+            if (videoId) {
+                var cleanYtWatch = 'https://www.youtube.com/watch?v=' + videoId;
+                try { navigator.clipboard.writeText(cleanYtWatch); } catch (e) {}
+
+                win.document.open();
+                win.document.write(
+                    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">' +
+                    '<meta name="referrer" content="origin">' +
+                    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+                    '<title>مشغل الفيديو الأصلي - ' + escapeHtml(videoId) + '</title>' +
+                    '<style>' +
+                        '*{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Tahoma,sans-serif;}' +
+                        'body{background:#000;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}' +
+                        '.stage{width:100%;max-width:960px;aspect-ratio:16/9;background:#000;position:relative;box-shadow:0 0 40px rgba(0,0,0,0.9);}' +
+                        'iframe,video{width:100%;height:100%;border:none;background:#000;display:block;}' +
+                        '.controls-bar{width:100%;max-width:960px;padding:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;background:#090d16;border-top:1px solid #1e293b;}' +
+                        '.c-btn{background:#06b6d4;color:#0f172a;text-decoration:none;border:none;padding:9px 14px;border-radius:8px;font-weight:800;font-size:0.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}' +
+                        '.c-btn.green{background:#10b981;color:#fff;}' +
+                        '.c-btn.blue{background:#3b82f6;color:#fff;}' +
+                        '.c-btn.purple{background:#8b5cf6;color:#fff;}' +
+                        '.raw-box{width:100%;max-width:960px;padding:10px 12px;background:#0f172a;display:none;gap:8px;flex-wrap:wrap;}' +
+                        '.raw-box input{flex:1;min-width:220px;padding:9px 12px;border-radius:8px;border:1px solid #334155;background:#000;color:#fff;direction:ltr;font-size:0.82rem;}' +
+                    '</style></head><body>' +
+                    '<div class="stage" id="playerStage">' +
+                        '<iframe id="ytFrame" src="https://www.youtube-nocookie.com/embed/' + escapeHtml(videoId) + '?autoplay=1&rel=0&modestbranding=1&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
+                    '</div>' +
+                    '<div class="controls-bar">' +
+                        '<a class="c-btn" href="https://genyoutube.online/en1/url=https://www.youtube.com/watch?v=' + escapeHtml(videoId) + '" target="_blank" rel="noopener noreferrer">🎬 استخراج رابط GoogleVideo الخام (سيرفر 1)</a>' +
+                        '<a class="c-btn green" href="https://www.ssyoutube.com/watch?v=' + escapeHtml(videoId) + '" target="_blank" rel="noopener noreferrer">⚡ تحميل MP4 مباشر (SaveFrom)</a>' +
+                        '<a class="c-btn blue" href="https://www.youtubepi.com/watch?v=' + escapeHtml(videoId) + '" target="_blank" rel="noopener noreferrer">🚀 تحميل سريع (Y2Mate)</a>' +
+                        '<button type="button" class="c-btn purple" onclick="var b=document.getElementById(\'rawInputBox\');b.style.display=b.style.display===\'flex\'?\'none\':\'flex\';">🔗 تشغيل رابط googlevideo / MP4 مباشر</button>' +
+                    '</div>' +
+                    '<div class="raw-box" id="rawInputBox">' +
+                        '<input type="text" id="directMp4Url" placeholder="الصق رابط googlevideo.com أو .mp4 هنا لتشغيله في المشغل الأسود الخام...">' +
+                        '<button type="button" class="c-btn" onclick="var u=document.getElementById(\'directMp4Url\').value.trim();if(u){document.getElementById(\'playerStage\').innerHTML=\'<video controls autoplay playsinline src=&quot;\'+u.replace(/&quot;/g,\'\')+\'&quot;></video>\';}">▶ تشغيل بالمشغل الخام</button>' +
+                    '</div>' +
+                    '</body></html>'
+                );
+                win.document.close();
+            }
+        }
+
+        /* =========================================================
+           الكود الأصلي الكامل للموقع بدون أي حذف أو نقصان
+           ========================================================= */
+        function extractVideoID(url) {
+            if (!url) return null;
+            var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/|live\/))([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function pasteLink() {
+            var input = document.getElementById('ytUrl');
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(function(text) {
+                    if (text) {
+                        input.value = text;
+                        analyzeVideo();
+                    }
+                }).catch(function() {
+                    input.focus();
+                });
+            } else {
+                input.focus();
+            }
+        }
+
+        function clearLink() {
+            var input = document.getElementById('ytUrl');
+            input.value = '';
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+            input.focus();
+        }
+
+        function analyzeVideo(skipSaveHistory) {
+            var rawUrl = document.getElementById('ytUrl').value.trim();
+            var videoId = extractVideoID(rawUrl);
+            var errorMsg = document.getElementById('errorMsg');
+            var resultSection = document.getElementById('resultSection');
+
+            if (!videoId) {
+                errorMsg.style.display = 'block';
+                resultSection.style.display = 'none';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+
+            document.getElementById('videoThumb').src = 'https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg';
+            document.getElementById('videoTitle').textContent = 'فيديو يوتيوب جاهز للتحميل';
+            document.getElementById('videoAuthor').textContent = 'معرف الفيديو: ' + videoId;
+
+            buildButtons(videoId);
+            resultSection.style.display = 'block';
+
+            // حفظ الرابط تلقائياً في الهستوري السحابي والمحلي
+            if (!skipSaveHistory) {
+                saveLinkToHistory(rawUrl);
+            }
+
+            var cleanUrl = 'https://www.youtube.com/watch?v=' + videoId;
+            fetch('https://noembed.com/embed?url=' + encodeURIComponent(cleanUrl))
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data && data.title) {
+                        document.getElementById('videoTitle').textContent = data.title;
+                        updateHistoryTitle(rawUrl, data.title);
+                    }
+                    if (data && data.author_name) {
+                        document.getElementById('videoAuthor').textContent = 'القناة: ' + data.author_name;
+                    }
+                })
+                .catch(function() {});
+        }
+
+        function openAndCopyPlaylist(type) {
+            var rawUrl = document.getElementById('ytUrl').value.trim();
+            if (!rawUrl) {
+                alert('⚠️ يرجى إدخال رابط يوتيوب في الخانة أولاً ليتم نسخه وتمريره للسيرفر!');
+                document.getElementById('ytUrl').focus();
+                return;
+            }
+
+            // حفظ رابط البلاي ليست في الهستوري أيضاً
+            saveLinkToHistory(rawUrl);
+
+            try {
+                navigator.clipboard.writeText(rawUrl);
+            } catch(e) {
+                var c = document.createElement('textarea');
+                c.value = rawUrl;
+                document.body.appendChild(c);
+                c.select();
+                try { document.execCommand('copy'); } catch(err) {}
+                document.body.removeChild(c);
+            }
+
+            var targetUrl = (type === 1) ? 'https://genyoutube.online/' : 'https://youtubemultidownloader.org/en/';
+            
+            window.open(targetUrl, '_blank');
+            alert('✅ تم نسخ رابط الفيديو إلى الحافظة!\n\nقم بالضغط مطولاً في خانة البحث بالموقع الذي سيفتح واختر "لصق" (Paste).');
+        }
+
+        function buildButtons(videoId) {
+            // ترتيب الـ 10 سيرفرات بحيث يكون GenYouTube هو سيرفر 1 ثم Y2Mate سيرفر 2 وهكذا بالترتيب + زر الفيديو الأصلي
+            var s1  = 'https://genyoutube.online/en1/url=https://www.youtube.com/watch?v=' + videoId;
+            var s2  = 'https://www.youtubepi.com/watch?v=' + videoId;
+            var s3  = 'https://www.ssyoutube.com/watch?v=' + videoId;
+            var s4  = 'https://y2meta.app/en/youtube/' + videoId;
+            var s5  = 'https://en.loader.to/api/button/?url=https://www.youtube.com/watch?v=' + videoId;
+            var s6  = 'https://y2mate.is/youtube/' + videoId;
+            var s7  = 'https://x2download.com/en/youtube/' + videoId;
+            var s8  = 'https://9convert.com/en/watch/' + videoId;
+            var s9  = 'https://yt1s.com/en/youtube-to-mp4/' + videoId;
+            var s10 = 'https://keepv.id/1/?url=https://www.youtube.com/watch?v=' + videoId;
+
+            document.getElementById('directServers').innerHTML =
+                '<button type="button" onclick="openOriginalRawVideo()" class="server-btn raw-server-btn">🎬 الفيديو الأصلي (GoogleVideo)</button>' +
+                '<a href="' + s1 + '" target="_blank" rel="noopener noreferrer" class="server-btn">🌐 سيرفر 1 (GenYouTube)</a>' +
+                '<a href="' + s2 + '" target="_blank" rel="noopener noreferrer" class="server-btn">🚀 سيرفر 2 (Y2Mate)</a>' +
+                '<a href="' + s3 + '" target="_blank" rel="noopener noreferrer" class="server-btn">⚡ سيرفر 3 (SaveFrom)</a>' +
+                '<a href="' + s4 + '" target="_blank" rel="noopener noreferrer" class="server-btn">📥 سيرفر 4 (Y2Meta)</a>' +
+                '<a href="' + s5 + '" target="_blank" rel="noopener noreferrer" class="server-btn">🔥 سيرفر 5 (Loader.to)</a>' +
+                '<a href="' + s6 + '" target="_blank" rel="noopener noreferrer" class="server-btn">💎 سيرفر 6 (Y2Mate.is)</a>' +
+                '<a href="' + s7 + '" target="_blank" rel="noopener noreferrer" class="server-btn">🌟 سيرفر 7 (X2Download)</a>' +
+                '<a href="' + s8 + '" target="_blank" rel="noopener noreferrer" class="server-btn">🎯 سيرفر 8 (9Convert)</a>' +
+                '<a href="' + s9 + '" target="_blank" rel="noopener noreferrer" class="server-btn">💫 سيرفر 9 (YT1s)</a>' +
+                '<a href="' + s10 + '" target="_blank" rel="noopener noreferrer" class="server-btn">⭐ سيرفر 10 (KeepVid)</a>';
+
+            var vFormats = [
+                { label: '1080p Full HD', size: '≈ 110 MB', link: s2, itag: '22' },
+                { label: '720p HD', size: '≈ 55 MB', link: s2, itag: '22' },
+                { label: '480p SD', size: '≈ 30 MB', link: s3, itag: '18' },
+                { label: '360p (سريع)', size: '≈ 15 MB', link: s3, itag: '18' }
+            ];
+
+            var aFormats = [
+                { label: 'MP3 جودة عالية (320kbps)', size: '≈ 8 MB', link: s4 },
+                { label: 'MP3 جودة متوسطة (128kbps)', size: '≈ 4 MB', link: s2 }
+            ];
+
+            var vHtml = '';
+            for (var i = 0; i < vFormats.length; i++) {
+                vHtml += '<div class="quality-card">' +
+                    '<div><span class="q-label">' + vFormats[i].label + '</span>' +
+                    '<span class="q-format">MP4 • ' + vFormats[i].size + '</span></div>' +
+                    '<div class="q-actions">' +
+                        '<button type="button" class="btn-dl-raw" onclick="openOriginalRawVideo(null, \'' + vFormats[i].itag + '\')">🎬 الفيديو الأصلي</button>' +
+                        '<a href="' + vFormats[i].link + '" target="_blank" rel="noopener noreferrer" class="btn-dl">تحميل ⬇</a>' +
+                    '</div>' +
+                    '</div>';
+            }
+            document.getElementById('videoQualities').innerHTML = vHtml;
+
+            var aHtml = '';
+            for (var j = 0; j < aFormats.length; j++) {
+                aHtml += '<div class="quality-card">' +
+                    '<div><span class="q-label">' + aFormats[j].label + '</span>' +
+                    '<span class="q-format">MP3 • ' + aFormats[j].size + '</span></div>' +
+                    '<a href="' + aFormats[j].link + '" target="_blank" rel="noopener noreferrer" class="btn-dl">تحميل ⬇</a>' +
+                    '</div>';
+            }
+            document.getElementById('audioQualities').innerHTML = aHtml;
+        }
+
+        function switchTab(type) {
+            var tabVideo = document.getElementById('tabVideo');
+            var tabAudio = document.getElementById('tabAudio');
+            var vGrid = document.getElementById('videoQualities');
+            var aGrid = document.getElementById('audioQualities');
+
+            if (type === 'video') {
+                tabVideo.className = 'tab-btn active';
+                tabAudio.className = 'tab-btn';
+                vGrid.style.display = 'grid';
+                aGrid.style.display = 'none';
+            } else {
+                tabVideo.className = 'tab-btn';
+                tabAudio.className = 'tab-btn active';
+                vGrid.style.display = 'none';
+                aGrid.style.display = 'grid';
+            }
+        }
+
+        function runExtractorTool() {
+            var rawUrl = document.getElementById('ytUrl').value.trim();
+            var videoId = extractVideoID(rawUrl);
+            
+            var links = new Set();
+            var regex = /(https?:\/\/[^"'\s<>]+?\.(?:mp4|m3u8|ts)[^"'\s<>]*)/ig;
+            
+            document.querySelectorAll('video, source').forEach(function(v) {
+                if (v.src && !v.src.startsWith('blob:')) links.add(v.src);
+            });
+
+            var html = document.documentElement.innerHTML;
+            var matchResult = html.match(regex);
+            if (matchResult) {
+                matchResult.forEach(function(m) { links.add(m); });
+            }
+
+            var arr = Array.from(links);
+            if (arr.length > 0) {
+                copyAndOpen(arr[0], '🎬 تم العثور على رابط الفيديو المباشر بنجاح!');
+                return;
+            }
+
+            if (videoId) {
+                var directTarget = 'https://www.ssyoutube.com/watch?v=' + videoId;
+                copyAndOpen(directTarget, '⚡ تم تحويلك مباشرة لخيارات التحميل المباشر للفيديو!');
+            } else {
+                alert('❌ يرجى إدخال أو تحليل رابط يوتيوب صحيح أولاً ليتم استخراج الروابط بدقة.');
+            }
+        }
+
+        function copyAndOpen(u, msg) {
+            var c = document.createElement('textarea');
+            c.value = u;
+            document.body.appendChild(c);
+            c.select();
+            try { document.execCommand('copy'); } catch(e) {}
+            document.body.removeChild(c);
+            try { navigator.clipboard.writeText(u); } catch(e) {}
+            window.open(u, '_blank');
+            alert(msg + '\n\n✅ تم نسخ الرابط وفتحه في تاب جديد بنجاح!');
+        }
+
+        /* =========================================================
+           دوال قسم: فتح مباشر نضيف (المشغل الاحترافي - بدون إعلانات)
+           ========================================================= */
         // دالة لتحويل صيغة الوقت (مثال: 1m30s) لثواني صافية عشان المشغل يفهمها
         function parseTime(timeString) {
             if (!timeString) return 0;
@@ -244,7 +2161,7 @@
             }
 
             // خوارزمية استخراج الـ ID قوية جداً بتغطي كل أنواع الروابط
-            const idRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
+            const idRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/i;
             const timeRegex = /[?&](?:t|start)=([a-zA-Z0-9]+)/i;
 
             const idMatch = input.match(idRegex);
@@ -253,6 +2170,9 @@
             if (idMatch && idMatch[1]) {
                 const videoId = idMatch[1];
                 let startTime = 0;
+
+                // حفظ الرابط تلقائياً في سجل الهستوري السحابي (Firebase) والمحلي
+                saveLinkToHistory(input);
 
                 // لو اللينك فيه وقت معين، نستخرجه
                 if (timeMatch && timeMatch[1]) {
@@ -295,22 +2215,56 @@
             statusMsg.style.display = 'block';
         }
 
+        // أزرار مساعدة سريعة لقسم "فتح مباشر نضيف"
+        function pasteToCleanPlayer() {
+            var input = document.getElementById('ytInput');
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(function(text) {
+                    if (text && text.trim()) {
+                        input.value = text.trim();
+                        processLink();
+                    } else {
+                        input.focus();
+                    }
+                }).catch(function() {
+                    input.focus();
+                });
+            } else {
+                input.focus();
+            }
+        }
+
+        function copyFromTopToCleanPlayer() {
+            var topVal = document.getElementById('ytUrl').value.trim() || document.getElementById('historyUrlInput').value.trim();
+            var cleanInput = document.getElementById('ytInput');
+            if (topVal) {
+                cleanInput.value = topVal;
+                processLink();
+            } else {
+                cleanInput.focus();
+                showError("لا يوجد رابط في الخانة العلوية، الصق الرابط هنا مباشرة!");
+            }
+        }
+
+        function clearCleanPlayer() {
+            var cleanInput = document.getElementById('ytInput');
+            var playerContainer = document.getElementById('playerContainer');
+            var iframe = document.getElementById('videoIframe');
+            var statusMsg = document.getElementById('statusMsg');
+            cleanInput.value = '';
+            statusMsg.style.display = 'none';
+            playerContainer.style.display = 'none';
+            iframe.src = '';
+            cleanInput.focus();
+        }
+
         // عشان لو داس Enter في الكيبورد يشغل على طول
         document.getElementById('ytInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 processLink();
             }
         });
-    </script><footer style="background: rgba(13, 17, 30, 0.45); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 30px 20px; text-align: center; color: #fff; margin-top: 40px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);">
-        <p style="font-size: 22px; font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.4); margin-bottom: 10px; letter-spacing: 1px;">© 2027 _ 2026 ENG OMAR TV. All Rights Reserved.</p>
-        <p style="color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.6); font-size: 18px; font-weight: bold; margin-bottom: 25px;">اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى سَيِّدِنَا مُحَمَّدٍ ﷺ</p>
-        
-        <div style="margin-top: 20px;">
-            <a href="https://t.me/livein2027" target="_blank" style="display: inline-block; background: rgba(10, 15, 25, 0.6); color: #3498db; padding: 12px 30px; text-decoration: none; border-radius: 30px; font-size: 18px; font-weight: bold; border: 1.5px solid #3498db; box-shadow: 0 0 15px rgba(52, 152, 219, 0.4), inset 0 0 10px rgba(52, 152, 219, 0.2); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);" onmouseover="this.style.background='rgba(52, 152, 219, 0.2)'; this.style.color='#fff'; this.style.boxShadow='0 0 25px #3498db, inset 0 0 15px #3498db'; this.style.transform='translateY(-3px) scale(1.05)';" onmouseout="this.style.background='rgba(10, 15, 25, 0.6)'; this.style.color='#3498db'; this.style.boxShadow='0 0 15px rgba(52, 152, 219, 0.4), inset 0 0 10px rgba(52, 152, 219, 0.2)'; this.style.transform='translateY(0) scale(1)';">
-                💬 تواصل مع المبرمج
-            </a>
-        </div>
-    </footer>
+    </script>
 
 
 </body></html>
